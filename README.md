@@ -26,7 +26,7 @@ Assumptions:
 Testing the module:
 1. Unit tests: Write unit tests to test the generate_OTP_email() and check_OTP() functions. 
 The generate_OTP_email function should be tested with a variety of input email addresses, including invalid addresses, valid addresses from non-"dso.org.sg" domains, and valid addresses from "dso.org.sg" domains.
-The check_OTP function should be tested with a variety of input streams, including streams that do not provide an OTP within the 1 minute timeout, and streams that provide invalid OTPs or exceed the maximum number of tries.
+The check_OTP function should be tested with a variety of input streams, including streams that do not provide an OTP within the 1 minute timeout, and streams that provide invalid OTPs
 2. Integration tests: Test the module's integration with the rest of the application, including input validation and error handling.
 3. Load testing: Test the module's performance and scalability by simulating a large number of requests to generate and check OTPs simultaneously.
 4. Security testing: Test the module's security measures, such as checking for email domain restrictions and ensuring secure email transmission.
