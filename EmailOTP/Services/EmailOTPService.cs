@@ -28,6 +28,7 @@ namespace EmailOTP.Services
         protected string smtpPassword;
         protected string senderEmail;
 
+        public EmailOTPService() { }
         public EmailOTPService(
             IOptions<EmailSettings> EmailSettings,
             IOptions<EmailOTPDatabaseSeting> EmailOTPDatabaseSettings)
@@ -53,7 +54,7 @@ namespace EmailOTP.Services
             OTPViewModel response = new OTPViewModel();
 
             // Check if email is valid and from allowed domain
-            if (!IsValidEmail(userEmail) || !IsAllowedDomain(userEmail))
+            if (!IsValidEmail(userEmail))
             {
                 response.Status = StatusCode.STATUS_EMAIL_INVALID;
                 return response;
@@ -67,7 +68,7 @@ namespace EmailOTP.Services
             var filter = Builders<Email>.Filter.Eq("email", userEmail);
             var update = Builders<Email>.Update
                 .Set("OtpHash", hashtop)
-                .Set("OTPExpiry", DateTime.Now.AddMinutes(1));
+                .Set("OTPExpiry", DateTime.UtcNow.AddMinutes(1));
             var result = await _emailsCollection.UpdateOneAsync(filter, update);
 
             if (result.ModifiedCount == 0 && result.MatchedCount == 0)
@@ -77,7 +78,7 @@ namespace EmailOTP.Services
                 {
                     email = userEmail,
                     OtpHash = hashtop,
-                    OTPExpiry = DateTime.Now.AddMinutes(1)
+                    OTPExpiry = DateTime.UtcNow.AddMinutes(1)
                 };
                 await _emailsCollection.InsertOneAsync(email);
             }
@@ -110,7 +111,7 @@ namespace EmailOTP.Services
 
             var otpHash = otphash(otp.ToString());
 
-            if (user != null && user.OtpHash == otpHash && user.OTPExpiry > DateTime.UtcNow)
+            if (user != null && IsValidotpHash(otpHash, user.OtpHash,user.OTPExpiry))
             {
                 // Clear the OTP code and expiry time from the database
                 var update = Builders<Email>.Update
@@ -129,12 +130,12 @@ namespace EmailOTP.Services
         }
 
 
-        private bool IsValidEmail(string email)
+        public bool IsValidEmail(string email)
         {
             try
             {
                 var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
+                return addr.Address == email && email.EndsWith(".dso.org.sg");
             }
             catch
             {
@@ -142,9 +143,10 @@ namespace EmailOTP.Services
             }
         }
 
-        private bool IsAllowedDomain(string email)
+        public bool IsValidotpHash(string otp, string DBotp, DateTime Otpexpiry)
         {
-            return email.EndsWith(".dso.org.sg");
+            return (otp == DBotp && Otpexpiry > DateTime.UtcNow) ? true : false;
+
         }
 
         private bool SendEmail(string user_email, string otp)
@@ -170,12 +172,6 @@ namespace EmailOTP.Services
             }
 
             return true;
-        }
-
-        public async Task<List<Email>> GetAllOTP()
-        {
-            var allOTP = await _emailsCollection.Find(_ => true).ToListAsync();
-            return allOTP;
         }
 
         private static string GenerateOtp()

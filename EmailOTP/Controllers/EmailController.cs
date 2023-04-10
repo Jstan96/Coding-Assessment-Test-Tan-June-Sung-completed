@@ -16,7 +16,6 @@ namespace EmailOTP.Controllers
 
         public IActionResult Index()
         {
-            ViewBag.message1 = "code ";
             return View();
         }
 
@@ -71,8 +70,8 @@ namespace EmailOTP.Controllers
                     TempData["ErrorMessage"] = $"{username} not found";
                     return RedirectToAction("VerifyOTP", "Email"); 
                 case OTPViewModel.StatusCode.STATUS_OTP_TIMEOUT:
-                    TempData["ErrorMessage"] = $"{username} OTP timeout";
-                    return RedirectToAction("VerifyOTP", "Email");
+                    TempData["ErrorMessage"] = $"{username} OTP timeout. please try again";
+                    return RedirectToAction("index", "Email");
                 default:
                     TempData["ErrorMessage"] = " Unknown Request";
                     return RedirectToAction("index", "Email", null);
