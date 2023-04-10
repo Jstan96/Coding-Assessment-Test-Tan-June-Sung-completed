@@ -6,10 +6,6 @@
     string otpmessage = @ViewContext.HttpContext.Session.GetString("OtpMessage");
 }
 
-<h2>OTP Verification</h2>
-
-<p>A verification code has been sent to your email address:</p>
-<h4>Welcome, @ViewContext.HttpContext.Session.GetString("username")!</h4>
 
 @if (TempData["ErrorMessage"] != null)
 {
@@ -20,6 +16,11 @@
 {
     <div class="alert alert-success" role="alert">@ViewContext.HttpContext.Session.GetString("OtpMessage")</div>
 }
+
+<h2>OTP Verification</h2>
+
+<p>A verification code has been sent to your email address:</p>
+<h4>Welcome, @ViewContext.HttpContext.Session.GetString("username")!</h4>
 
 <p>Please enter the code below:</p>
 
