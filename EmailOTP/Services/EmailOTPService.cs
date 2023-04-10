@@ -89,6 +89,7 @@ namespace EmailOTP.Services
             if (emailSent)
             {
                 response.Username = userEmail;
+                response.otpMessage = emailBody;
                 response.Status = StatusCode.STATUS_EMAIL_OK;
                 return response;
             }

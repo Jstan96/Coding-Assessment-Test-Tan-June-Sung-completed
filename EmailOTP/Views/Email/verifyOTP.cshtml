@@ -2,12 +2,24 @@
 
 @{
     ViewData["Title"] = "verifyOTP";
+
+    string otpmessage = @ViewContext.HttpContext.Session.GetString("OtpMessage");
 }
 
 <h2>OTP Verification</h2>
 
 <p>A verification code has been sent to your email address:</p>
-<p><strong>@Model.Username </strong></p>
+<h4>Welcome, @ViewContext.HttpContext.Session.GetString("username")!</h4>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+@if (otpmessage != null)
+{
+    <div class="alert alert-success" role="alert">@ViewContext.HttpContext.Session.GetString("OtpMessage")</div>
+}
 
 <p>Please enter the code below:</p>
 
@@ -16,7 +28,7 @@
         <label for="otp">OTP code:</label>
         <input type="text" class="form-control" id="otp" name="otp" required>
     </div>
-    <input type="hidden" name="username" value="@Model.Username">
+    <input type="hidden" name="username" value="@ViewContext.HttpContext.Session.GetString("username")">
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 

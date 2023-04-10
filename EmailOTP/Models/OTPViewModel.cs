@@ -3,7 +3,7 @@
     public class OTPViewModel
     {
         public string? Username { get; set; }
-        public string? otp { get; set; }
+        public string? otpMessage { get; set; }
         public StatusCode Status { get; set; }
 
         public enum StatusCode

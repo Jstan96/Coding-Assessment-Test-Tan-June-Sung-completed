@@ -16,6 +16,7 @@ namespace EmailOTP.Controllers
 
         public IActionResult Index()
         {
+            ViewBag.message1 = "code ";
             return View();
         }
 
@@ -26,18 +27,30 @@ namespace EmailOTP.Controllers
             switch (OTPViewModel.Status)
             {
                 case OTPViewModel.StatusCode.STATUS_EMAIL_OK:
-                    return RedirectToAction("VerifyOTP", "Email", new { OTPViewModel.Username });
+                    
+                    HttpContext.Session.SetString("OtpMessage", OTPViewModel.otpMessage);
+                    HttpContext.Session.SetString("username", OTPViewModel.Username);
+                    return RedirectToAction("VerifyOTP", "Email");
                 case OTPViewModel.StatusCode.STATUS_EMAIL_INVALID:
-                    return NotFound($"{user.email} not found");
+                    TempData["ErrorMessage"] = $"{user.email} not found";
+                    return RedirectToAction("index", "Email");
                 case OTPViewModel.StatusCode.STATUS_EMAIL_FAIL:
-                    return NotFound($"{user.email} not found");
+                    TempData["ErrorMessage"] = $"{user.email} not found";
+                    return RedirectToAction("index", "Email");
                 default:
-                    return NotFound();
+                    return RedirectToAction("index", "Email");
             }
         }
 
-        public IActionResult VerifyOTP(string username)
+        public IActionResult VerifyOTP()
         {
+            string username = HttpContext.Session.GetString("username");
+            if (username == null)
+            {
+                TempData["ErrorMessage"] = $"{username} not found";
+                    return RedirectToAction("index", "Email");
+            }
+
             var model = new OTPViewModel { Username = username };
 
             return View(model);
@@ -52,11 +65,17 @@ namespace EmailOTP.Controllers
                 case OTPViewModel.StatusCode.STATUS_OTP_OK:
                     return RedirectToAction("SuccessView", "Email");
                 case OTPViewModel.StatusCode.STATUS_OTP_FAIL:
-                    return RedirectToAction("VerifyOTP", "Email", new { username });
+                    TempData["ErrorMessage"] = $"{username} otp verify failed.please try again";
+                    return RedirectToAction("VerifyOTP", "Email");
                 case OTPViewModel.StatusCode.STATUS_EMAIL_FAIL:
-                    return RedirectToAction("VerifyOTP", "Email", new { username });
+                    TempData["ErrorMessage"] = $"{username} not found";
+                    return RedirectToAction("VerifyOTP", "Email"); 
+                case OTPViewModel.StatusCode.STATUS_OTP_TIMEOUT:
+                    TempData["ErrorMessage"] = $"{username} OTP timeout";
+                    return RedirectToAction("VerifyOTP", "Email");
                 default:
-                    return RedirectToAction();
+                    TempData["ErrorMessage"] = " Unknown Request";
+                    return RedirectToAction("index", "Email", null);
             }
 
         }
